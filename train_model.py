@@ -2,11 +2,18 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from ml_tools import isValidPath
+from ml_tools import heatMap
 
-def train_model(filePath):
-  data = pd.read_csv(filePath)
-  print(data)
+def logisticRegression(df):
+  print(df)
+
+def basicLogisticRegression(df):
+  print(df)
+  heatMap(df)
+  # heatMap(df)
+  # print(df)
 
 if __name__ == '__main__':
 	if (len(sys.argv) <= 1):
@@ -15,4 +22,7 @@ if __name__ == '__main__':
 		isValidPath(sys.argv[1])
 	except Exception as e:
 		sys.exit(e)
-	train_model(sys.argv[1])
+	df = pd.read_csv(sys.argv[1])
+	print(df.head())
+	basicLogisticRegression(df)
+	# logisticRegression(df)
