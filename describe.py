@@ -1,5 +1,4 @@
 import sys
-import math
 import numpy as np
 import pandas as pd
 from ml_tools import isValidPath
@@ -7,6 +6,7 @@ from ml_tools import count
 from ml_tools import mean
 from ml_tools import std
 from ml_tools import quantile
+from ml_tools import removeEmptyFields
 
 def createIndexedDf(column):
 	return pd.DataFrame(columns=column, index=["count", "mean", "std", "min", "25%", "50%", "75%", "max"])
@@ -15,16 +15,16 @@ def compute(df, described):
 	for column in described.columns:
 		if df[column].dtype != "object":
 			sorted = df[column].sort_values()
-			new_data = [float(i) for i in sorted if not math.isnan(i)]
-			print('new', new_data)
-			described[column]["count"] = count(new_data)
-			described[column]["mean"] = mean(new_data)
-			described[column]["std"] = std(new_data, described[column]["mean"])
-			described[column]["min"] = new_data[0]
-			described[column]["25%"] = quantile(new_data, .25)
-			described[column]["50%"] = quantile(new_data, .5)
-			described[column]["75%"] = quantile(new_data, .75)
-			described[column]["max"] = new_data[len(new_data) - 1]
+			cleaned = removeEmptyFields(sorted)
+			print('new', cleaned)
+			described[column]["count"] = count(cleaned)
+			described[column]["mean"] = mean(cleaned)
+			described[column]["std"] = std(cleaned, described[column]["mean"])
+			described[column]["min"] = cleaned[0]
+			described[column]["25%"] = quantile(cleaned, .25)
+			described[column]["50%"] = quantile(cleaned, .5)
+			described[column]["75%"] = quantile(cleaned, .75)
+			described[column]["max"] = cleaned[len(cleaned) - 1]
 	return described
 
 def describe(df):

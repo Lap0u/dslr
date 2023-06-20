@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 import seaborn as sns
+import math
+import pandas as pd
 
 def count(array):
   return len(array)
@@ -20,6 +22,10 @@ def min_(array):
 
 def quantile(array, q):
   return array[int(len(array) * q)]
+
+def removeEmptyFields(array):
+  x = [float(i) for i in array if not math.isnan(i)]
+  return pd.DataFrame(x)
 
 def max_(array):
   max = array[0]
