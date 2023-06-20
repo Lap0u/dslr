@@ -1,17 +1,15 @@
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
-from ml_tools import isValidPath
-from ml_tools import normalize_array
-from ml_tools import removeEmptyFields
+import ml_tools as tools
 
 def histogram(df):
   for column in df.columns:
     if df[column].dtype != "object":
-      cleaned = removeEmptyFields(df[column])
+      cleaned = tools.removeEmptyFields(df[column])
       if len(cleaned) == 0:
         continue
-      df[column] = normalize_array(cleaned)
+      df[column] = tools.normalize_array(cleaned)
       print("Standard deviation of " + column + " : " + str(df[column].std()))
       plt.hist(df[df['Hogwarts House'] == 'Slytherin'][column], alpha=0.4, label="Slytherin", color="green")
       plt.hist(df[df['Hogwarts House'] == 'Gryffindor'][column], alpha=0.4, label="Gryffindor", color="red")
@@ -27,7 +25,7 @@ if __name__ == "__main__":
 	if len(sys.argv) <= 1:
 		sys.exit("Usage: python3 train.py <csv file>")
 	try:
-		isValidPath(sys.argv[1])
+		tools.isValidPath(sys.argv[1])
 	except Exception as e:
 		sys.exit(e)
 	df = pd.read_csv(sys.argv[1]).drop(columns=['Index'])
