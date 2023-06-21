@@ -23,7 +23,7 @@ def histogram(df):
 
 if __name__ == "__main__":
 	if len(sys.argv) <= 1:
-		sys.exit("Usage: python3 train.py <csv file>")
+		sys.exit("Usage: python3 histogram.py <csv file>")
 	try:
 		tools.isValidPath(sys.argv[1])
 	except Exception as e:

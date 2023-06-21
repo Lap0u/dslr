@@ -19,7 +19,7 @@ def scatter_plot(df, feat1, feat2):
 
 if __name__ == "__main__":
 	if len(sys.argv) != 4:
-		sys.exit("Usage: python3 train.py <csv file> <feature 1> <feature 2>")
+		sys.exit("Usage: python3 scatter_plot.py <csv file> <feature 1> <feature 2>")
 	try:
 		tools.isValidPath(sys.argv[1])
 	except Exception as e:

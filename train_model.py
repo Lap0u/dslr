@@ -17,7 +17,7 @@ def basicLogisticRegression(df):
 
 if __name__ == '__main__':
 	if (len(sys.argv) <= 1):
-		sys.exit('Usage: python3 train.py <csv file>')
+		sys.exit('Usage: python3 train_model.py <csv file>')
 	try:
 		isValidPath(sys.argv[1])
 	except Exception as e:
