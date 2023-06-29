@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 
 
 def histogram(df, col, length, i, j):
-    print('pos hist', (i-1) * length + j)
-    plt.subplot(length + 1, length + 1, (i - 1) * length + j)
+    plt.subplot(length, length, (i - 1) * length + j)
     plt.hist(df[df['Hogwarts House'] == 'Slytherin'][col],
              alpha=0.4, label="Slytherin", color="green")
     plt.hist(df[df['Hogwarts House'] == 'Gryffindor'][col],
@@ -16,11 +15,19 @@ def histogram(df, col, length, i, j):
              alpha=0.4, label="Ravenclaw", color="cyan")
     plt.hist(df[df['Hogwarts House'] == 'Hufflepuff'][col],
              alpha=0.4, label="Hufflepuff", color="gold")
+    ax = plt.gca()
+    ax.axes.xaxis.set_ticklabels([])
+    ax.axes.yaxis.set_ticklabels([])
+    ax.axes.xaxis.set_ticks([])
+    ax.axes.yaxis.set_ticks([])
+    if (j == 1):
+        ax.set_xlabel(col)
+    if (i == length):
+        ax.set_ylabel(col)
 
 
 def scatter_plot(df, row, col, length, i, j):
-    print('pos scat', (i-1) * length + j)
-    plt.subplot(length, length + 1, (i - 1) * length + j)
+    plt.subplot(length, length, (i - 1) * length + j)
     plt.scatter(df[df['Hogwarts House'] == 'Slytherin'][row], df[df['Hogwarts House']
                 == 'Slytherin'][col], alpha=0.4, s=1, label="Slytherin", color="green")
     plt.scatter(df[df['Hogwarts House'] == 'Gryffindor'][row], df[df['Hogwarts House']
@@ -29,6 +36,15 @@ def scatter_plot(df, row, col, length, i, j):
                 == 'Ravenclaw'][col], alpha=0.4, s=1, label="Ravenclaw", color="cyan")
     plt.scatter(df[df['Hogwarts House'] == 'Hufflepuff'][row], df[df['Hogwarts House']
                 == 'Hufflepuff'][col], alpha=0.4, s=1, label="Hufflepuff", color="gold")
+    ax = plt.gca()
+    ax.axes.xaxis.set_ticklabels([])
+    ax.axes.yaxis.set_ticklabels([])
+    ax.axes.xaxis.set_ticks([])
+    ax.axes.yaxis.set_ticks([])
+    if (j == 1):
+        ax.set_xlabel(row)
+    if (i == length):
+        ax.set_ylabel(col)
 
 
 def pair_plot(df):
@@ -36,6 +52,7 @@ def pair_plot(df):
         [np.int64, np.float64])
     length = len(dropped.columns)
     plt.rcParams["figure.figsize"] = [50, 42]
+    plt.title("Pair plot")
     for row, i in zip(dropped.columns, range(1, length + 1)):
         for col, j in zip(dropped.columns, range(1, length + 1)):
             print(i, j, row, col)
@@ -45,8 +62,9 @@ def pair_plot(df):
                 histogram(df, row, length, i, j)
             else:
                 scatter_plot(df, row, col, length, i, j)
+        # if i == 2:
+        #     break
     plt.legend(loc='upper right')
-    plt.title("Pair plot")
     plt.show()
 
 
