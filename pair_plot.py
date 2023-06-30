@@ -16,14 +16,12 @@ def histogram(df, col, length, i, j):
     plt.hist(df[df['Hogwarts House'] == 'Hufflepuff'][col],
              alpha=0.4, label="Hufflepuff", color="gold")
     ax = plt.gca()
-    ax.axes.xaxis.set_ticklabels([])
-    ax.axes.yaxis.set_ticklabels([])
     ax.axes.xaxis.set_ticks([])
     ax.axes.yaxis.set_ticks([])
     if (j == 1):
-        ax.set_xlabel(col)
+        ax.set_ylabel(col.replace(' ', '\n'), fontsize=6)
     if (i == length):
-        ax.set_ylabel(col)
+        ax.set_xlabel(col.replace(' ', '\n'), fontsize=8)
 
 
 def scatter_plot(df, row, col, length, i, j):
@@ -37,14 +35,12 @@ def scatter_plot(df, row, col, length, i, j):
     plt.scatter(df[df['Hogwarts House'] == 'Hufflepuff'][row], df[df['Hogwarts House']
                 == 'Hufflepuff'][col], alpha=0.4, s=1, label="Hufflepuff", color="gold")
     ax = plt.gca()
-    ax.axes.xaxis.set_ticklabels([])
-    ax.axes.yaxis.set_ticklabels([])
     ax.axes.xaxis.set_ticks([])
     ax.axes.yaxis.set_ticks([])
     if (j == 1):
-        ax.set_xlabel(row)
+        ax.set_ylabel(row.replace(' ', '\n'), fontsize=6)
     if (i == length):
-        ax.set_ylabel(col)
+        ax.set_xlabel(col.replace(' ', '\n'), fontsize=8)
 
 
 def pair_plot(df):
@@ -55,16 +51,18 @@ def pair_plot(df):
     plt.title("Pair plot")
     for row, i in zip(dropped.columns, range(1, length + 1)):
         for col, j in zip(dropped.columns, range(1, length + 1)):
-            print(i, j, row, col)
+            # print(i, j, row, col)
             tools.removeEmptyFields(df[col])
             tools.removeEmptyFields(df[row])
             if row == col:
                 histogram(df, row, length, i, j)
             else:
                 scatter_plot(df, row, col, length, i, j)
-        # if i == 2:
-        #     break
-    plt.legend(loc='upper right')
+        #     if i == 1:
+        #         break
+        # if i == 1:
+            # break
+    plt.legend(bbox_to_anchor=(1.04, 1))
     plt.show()
 
 
