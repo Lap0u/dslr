@@ -12,10 +12,11 @@ def count(array):
     return len(array)
 
 
-def load_data(filename: str):
-    data = np.loadtxt(filename, delimiter=',')
-    X = data[:, :-1]  # Toutes les colonnes sauf la dernière
-    y = data[:, -1]   # Dernière colonne
+def load_data(filename: str, targetColName: str, t: callable):
+    df = pd.read_csv(filename, sep=',', converters={targetColName: t}).drop(
+        ['Index'], axis=1).select_dtypes(include=['float64', 'int64'])
+    y = df[targetColName]
+    X = df.drop([targetColName], axis=1)
     return X, y
 
 
