@@ -27,13 +27,13 @@ def histogram(df, col, length, i, j):
 def scatter_plot(df, row, col, length, i, j):
     plt.subplot(length, length, (i - 1) * length + j)
     plt.scatter(df[df['Hogwarts House'] == 'Slytherin'][row], df[df['Hogwarts House']
-                == 'Slytherin'][col], alpha=0.4, s=1, label="Slytherin", color="green")
+                == 'Slytherin'][col], alpha=0.4, s=0.1, label="Slytherin", color="green")
     plt.scatter(df[df['Hogwarts House'] == 'Gryffindor'][row], df[df['Hogwarts House']
-                == 'Gryffindor'][col], alpha=0.4, s=1, label="Gryffindor", color="red")
+                == 'Gryffindor'][col], alpha=0.4, s=0.4, label="Gryffindor", color="red")
     plt.scatter(df[df['Hogwarts House'] == 'Ravenclaw'][row], df[df['Hogwarts House']
-                == 'Ravenclaw'][col], alpha=0.4, s=1, label="Ravenclaw", color="cyan")
+                == 'Ravenclaw'][col], alpha=0.4, s=0.4, label="Ravenclaw", color="cyan")
     plt.scatter(df[df['Hogwarts House'] == 'Hufflepuff'][row], df[df['Hogwarts House']
-                == 'Hufflepuff'][col], alpha=0.4, s=1, label="Hufflepuff", color="gold")
+                == 'Hufflepuff'][col], alpha=0.4, s=0.4, label="Hufflepuff", color="gold")
     ax = plt.gca()
     ax.axes.xaxis.set_ticks([])
     ax.axes.yaxis.set_ticks([])
