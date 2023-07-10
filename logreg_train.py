@@ -64,6 +64,8 @@ def compute_gradient(X, y, slopes, intercept, *argv):
         f_slopes_intercept_i = tools.sigmoid_(X.dot(slopes) + intercept)
         err_i = f_slopes_intercept_i - y[i]
         for j in range(n):
+            print('dj', dj_dslopes[j])
+            print(X)
             dj_dslopes[j] = dj_dslopes[j] + err_i * X[i][j]
         dj_dintercept = dj_dintercept + err_i
     dj_dslopes = dj_dslopes / m
@@ -114,6 +116,21 @@ def gradient_descent(X, y, slopes, intercept, cost_function, gradient_function, 
 
 
 def logisticRegression(X, y):
+    '''The logisticRegression function performs logistic regression on the given input data and plots the
+    decision boundary.
+
+    Parameters
+    ----------
+    X
+        The input matrix X, where each row represents a training example and each column represents a
+    feature.
+    y
+        The parameter "y" in the logisticRegression function represents the target variable or the
+    dependent variable. It is a numpy array or pandas series that contains the labels or classes for
+    each data point in the dataset. In the context of logistic regression, "y" typically contains binary
+    values (0 or 1
+
+    '''
     m, n = X.shape
     np.random.seed(1)
     intercept = 0
