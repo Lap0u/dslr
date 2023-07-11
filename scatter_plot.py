@@ -29,7 +29,7 @@ if __name__ == "__main__":
     if len(sys.argv) != 4:
         sys.exit("Usage: python3 scatter_plot.py <csv file> <feature 1> <feature 2>")
     try:
-        tools.isValidPath(sys.argv[1])
+        tools.is_valid_path(sys.argv[1])
     except Exception as e:
         sys.exit(e)
     feat1 = sys.argv[2]

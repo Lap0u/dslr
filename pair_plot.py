@@ -4,7 +4,8 @@ import pandas as pd
 import ml_tools as tools
 import matplotlib.pyplot as plt
 
-HOUSE='Hogwarts House'
+HOUSE = 'Hogwarts House'
+
 
 def histogram(df, col, length, i, j):
     plt.subplot(length, length, (i - 1) * length + j)
@@ -71,7 +72,7 @@ if __name__ == "__main__":
     if len(sys.argv) <= 1:
         sys.exit("Usage: python3 describe.py <csv file>")
     try:
-        tools.isValidPath(sys.argv[1])
+        tools.is_valid_path(sys.argv[1])
     except Exception as e:
         sys.exit(e)
     df = pd.read_csv(sys.argv[1]).drop(columns=['Index'])

@@ -5,9 +5,8 @@ import pandas as pd
 import seaborn as sns
 import ml_tools as tools
 import argparse
-import math
 
-ALPHA = 0.001
+ALPHA = 0.00001
 EPOCHS = 100
 
 
@@ -30,12 +29,12 @@ def compute_cost(x, y, slopes, intercept, *argv):
     for i in range(m):
         slopes_x_intercept = 0
         for col, j in zip(x.columns, range(n)):
-            slopes_x_intercept = slopes_x_intercept + x[col] * slopes[j]
+            slopes_x_intercept = slopes_x_intercept + x[col][j] * slopes[j]
         slopes_x_intercept = slopes_x_intercept + intercept
         f_slopes_intercept_x = tools.sigmoid_(slopes_x_intercept)
-        print(f_slopes_intercept_x, 'slop')
         loss = loss + (-1 * y[i] * np.log(f_slopes_intercept_x) -
                        (1 - y[i]) * np.log(1 - f_slopes_intercept_x))
+    print('L', loss)
     total_cost = loss / m
     return total_cost
 
@@ -59,17 +58,12 @@ def compute_gradient(x, y, slopes, intercept, *argv):
     dj_dintercept = 0.
     for i in range(m):
         f_slopes_intercept_i = tools.sigmoid_(x.dot(slopes) + intercept)
-        err_i = f_slopes_intercept_i - y[i]
-        if i == 1:
-            print(err_i, 'err_i')
+        err_i = f_slopes_intercept_i[i] - y[i]
         for col, j in zip(x.columns, range(n)):
-            dj_dslopes[j] = dj_dslopes[j] + err_i[j] * x[col][i]
+            dj_dslopes[j] = dj_dslopes[j] + err_i * x[col][i]
         dj_dintercept = dj_dintercept + err_i
     dj_dslopes = dj_dslopes / m
     dj_dintercept = dj_dintercept / m
-    print(dj_dslopes, 'dj_dslopes')
-    print(dj_dintercept, 'dj_dintercept')
-    sys.exit()
     return dj_dintercept, dj_dslopes
 
 
@@ -94,22 +88,16 @@ def gradient_descent(x, y, slopes, intercept, cost_function, gradient_function, 
             running gradient descent
     """
 
-    j_history = []
-    w_history = []
-    for i in range(EPOCHS):
-
-        dj_db, dj_dw = gradient_function(x, y, slopes, intercept, lambda_)
-        slopes = slopes - ALPHA * dj_dw
-        intercept = intercept - ALPHA * dj_db
-
-        if i < 100000:
-            cost = cost_function(x, y, slopes, intercept, lambda_)
-            j_history.append(cost)
-        if i % math.ceil(EPOCHS / 10) == 0 or i == (EPOCHS - 1):
-            w_history.append(slopes)
-            print(f"Iteration {i:4}: Cost {float(j_history[-1]):8.2f}   ")
-
-    return slopes, intercept, j_history, w_history
+    for _ in range(EPOCHS):
+        cost = cost_function(x, y, slopes, intercept, lambda_)
+        dj_dintercept, dj_dslopes = gradient_function(
+            x, y, slopes, intercept, lambda_)
+        intercept = intercept - ALPHA * dj_dintercept
+        slopes = slopes - ALPHA * dj_dslopes
+        print('cost', cost)
+        print('intercept', intercept)
+        print('slopes', slopes)
+    return slopes, intercept, dj_dslopes, dj_dintercept
 
 
 def logistic_regression(x, y):
@@ -147,7 +135,7 @@ if __name__ == '__main__':
     parser.add_argument('csv_file', type=str, help='csv file')
     args = parser.parse_args()
     try:
-        tools.isValidPath(args.csv_file)
+        tools.is_valid_path(args.csv_file)
     except Exception as e:
         print(e)
         sys.exit(e)

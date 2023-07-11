@@ -34,7 +34,7 @@ if __name__ == "__main__":
     if len(sys.argv) <= 1:
         sys.exit("Usage: python3 histogram.py <csv file>")
     try:
-        tools.isValidPath(sys.argv[1])
+        tools.is_valid_path(sys.argv[1])
     except Exception as e:
         sys.exit(e)
     df = pd.read_csv(sys.argv[1]).drop(columns=['Index'])

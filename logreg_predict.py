@@ -14,8 +14,8 @@ if __name__ == '__main__':
     parser.add_argument('weight', type=str, help='csv file')
     args = parser.parse_args()
     try:
-        tools.isValidPath(args.csv_file)
-        tools.isValidPath(args.weight)
+        tools.is_valid_path(args.csv_file)
+        tools.is_valid_path(args.weight)
     except Exception as e:
         sys.exit(e)
     df = pd.read_csv(args.csv_file)
