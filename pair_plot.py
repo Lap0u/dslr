@@ -4,16 +4,17 @@ import pandas as pd
 import ml_tools as tools
 import matplotlib.pyplot as plt
 
+HOUSE='Hogwarts House'
 
 def histogram(df, col, length, i, j):
     plt.subplot(length, length, (i - 1) * length + j)
-    plt.hist(df[df['Hogwarts House'] == 'Slytherin'][col],
+    plt.hist(df[df[HOUSE] == 'Slytherin'][col],
              alpha=0.4, label="Slytherin", color="green")
-    plt.hist(df[df['Hogwarts House'] == 'Gryffindor'][col],
+    plt.hist(df[df[HOUSE] == 'Gryffindor'][col],
              alpha=0.4, label="Gryffindor", color="red")
-    plt.hist(df[df['Hogwarts House'] == 'Ravenclaw'][col],
+    plt.hist(df[df[HOUSE] == 'Ravenclaw'][col],
              alpha=0.4, label="Ravenclaw", color="cyan")
-    plt.hist(df[df['Hogwarts House'] == 'Hufflepuff'][col],
+    plt.hist(df[df[HOUSE] == 'Hufflepuff'][col],
              alpha=0.4, label="Hufflepuff", color="gold")
     ax = plt.gca()
     ax.axes.xaxis.set_ticks([])
@@ -26,13 +27,13 @@ def histogram(df, col, length, i, j):
 
 def scatter_plot(df, row, col, length, i, j):
     plt.subplot(length, length, (i - 1) * length + j)
-    plt.scatter(df[df['Hogwarts House'] == 'Slytherin'][row], df[df['Hogwarts House']
+    plt.scatter(df[df[HOUSE] == 'Slytherin'][row], df[df[HOUSE]
                 == 'Slytherin'][col], alpha=0.4, s=0.1, label="Slytherin", color="green")
-    plt.scatter(df[df['Hogwarts House'] == 'Gryffindor'][row], df[df['Hogwarts House']
+    plt.scatter(df[df[HOUSE] == 'Gryffindor'][row], df[df[HOUSE]
                 == 'Gryffindor'][col], alpha=0.4, s=0.4, label="Gryffindor", color="red")
-    plt.scatter(df[df['Hogwarts House'] == 'Ravenclaw'][row], df[df['Hogwarts House']
+    plt.scatter(df[df[HOUSE] == 'Ravenclaw'][row], df[df[HOUSE]
                 == 'Ravenclaw'][col], alpha=0.4, s=0.4, label="Ravenclaw", color="cyan")
-    plt.scatter(df[df['Hogwarts House'] == 'Hufflepuff'][row], df[df['Hogwarts House']
+    plt.scatter(df[df[HOUSE] == 'Hufflepuff'][row], df[df[HOUSE]
                 == 'Hufflepuff'][col], alpha=0.4, s=0.4, label="Hufflepuff", color="gold")
     ax = plt.gca()
     ax.axes.xaxis.set_ticks([])

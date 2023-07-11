@@ -4,15 +4,15 @@ import pandas as pd
 import ml_tools as tools
 
 
-def createIndexedDf(column):
+def create_indexed_df(column):
     return pd.DataFrame(columns=column, index=["count", "mean", "std", "min", "25%", "50%", "75%", "max"])
 
 
 def compute(df, described):
     for column in described.columns:
         if df[column].dtype != "object":
-            sorted = df[column].sort_values()
-            cleaned = tools.removeEmptyFields(sorted)
+            sorted_values = df[column].sort_values()
+            cleaned = tools.removeEmptyFields(sorted_values)
             print('new', cleaned)
             described[column]["count"] = tools.count(cleaned)
             described[column]["mean"] = tools.mean(cleaned)
@@ -27,7 +27,7 @@ def compute(df, described):
 
 
 def describe(df):
-    struct = createIndexedDf(df.dropna(how='all', axis=1).select_dtypes(
+    struct = create_indexed_df(df.dropna(how='all', axis=1).select_dtypes(
         [np.int64, np.float64]).columns)
     described = compute(df, struct)
     print(described)

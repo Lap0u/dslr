@@ -8,14 +8,14 @@ import argparse
 import math
 
 ALPHA = 0.001
-EPOCHS = 10000
+EPOCHS = 100
 
 
-def compute_cost(X, y, slopes, intercept, *argv):
+def compute_cost(x, y, slopes, intercept, *argv):
     """
     Computes the cost over all examples
     Args:
-        X : (ndarray Shape (m,n)) data, m examples by n features
+        x : (ndarray Shape (m,n)) data, m examples by n features
         y : (ndarray Shape (m,))  target value 
         slopes : (ndarray Shape (n,))  values of parameters of the model      
         intercept : (scalar)              value of bias parameter of the model
@@ -24,27 +24,28 @@ def compute_cost(X, y, slopes, intercept, *argv):
         total_cost : (scalar) cost 
     """
 
-    m, n = X.shape
+    m, n = x.shape
     loss = 0
     total_cost = 0
     for i in range(m):
-        slopes_X_intercept = 0
-        for j in range(n):
-            slopes_X_intercept = slopes_X_intercept + X[i][j] * slopes[j]
-        slopes_X_intercept = slopes_X_intercept + intercept
-        f_slopes_intercept_X = tools.sigmoid_(slopes_X_intercept)
-        loss = loss + (-1 * y[i] * np.log(f_slopes_intercept_X) -
-                       (1 - y[i]) * np.log(1 - f_slopes_intercept_X))
+        slopes_x_intercept = 0
+        for col, j in zip(x.columns, range(n)):
+            slopes_x_intercept = slopes_x_intercept + x[col] * slopes[j]
+        slopes_x_intercept = slopes_x_intercept + intercept
+        f_slopes_intercept_x = tools.sigmoid_(slopes_x_intercept)
+        print(f_slopes_intercept_x, 'slop')
+        loss = loss + (-1 * y[i] * np.log(f_slopes_intercept_x) -
+                       (1 - y[i]) * np.log(1 - f_slopes_intercept_x))
     total_cost = loss / m
     return total_cost
 
 
-def compute_gradient(X, y, slopes, intercept, *argv):
+def compute_gradient(x, y, slopes, intercept, *argv):
     """
     Computes the gradient for logistic regression 
 
     Args:
-        X : (ndarray Shape (m,n)) data, m examples by n features
+        x : (ndarray Shape (m,n)) data, m examples by n features
         y : (ndarray Shape (m,))  target value 
         slopes : (ndarray Shape (n,))  values of parameters of the model      
         intercept : (scalar)              value of bias parameter of the model
@@ -53,33 +54,32 @@ def compute_gradient(X, y, slopes, intercept, *argv):
         dj_dslopes : (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters slopes. 
         dj_dintercept : (scalar)             The gradient of the cost w.r.t. the parameter intercept. 
     """
-    print('in compute_gradient')
-    m, n = X.shape
+    m, n = x.shape
     dj_dslopes = np.zeros(slopes.shape)
     dj_dintercept = 0.
-    print(X)
-    print(m)
-    print(n)
     for i in range(m):
-        f_slopes_intercept_i = tools.sigmoid_(X.dot(slopes) + intercept)
+        f_slopes_intercept_i = tools.sigmoid_(x.dot(slopes) + intercept)
         err_i = f_slopes_intercept_i - y[i]
-        for j in range(n):
-            print('dj', dj_dslopes[j])
-            print(X)
-            dj_dslopes[j] = dj_dslopes[j] + err_i * X[i][j]
+        if i == 1:
+            print(err_i, 'err_i')
+        for col, j in zip(x.columns, range(n)):
+            dj_dslopes[j] = dj_dslopes[j] + err_i[j] * x[col][i]
         dj_dintercept = dj_dintercept + err_i
     dj_dslopes = dj_dslopes / m
     dj_dintercept = dj_dintercept / m
+    print(dj_dslopes, 'dj_dslopes')
+    print(dj_dintercept, 'dj_dintercept')
+    sys.exit()
     return dj_dintercept, dj_dslopes
 
 
-def gradient_descent(X, y, slopes, intercept, cost_function, gradient_function, lambda_):
+def gradient_descent(x, y, slopes, intercept, cost_function, gradient_function, lambda_):
     """
     Performs batch gradient descent to learn theta. Updates theta by taking 
     num_iters gradient steps with learning rate alpha
 
     Args:
-        X :    (ndarray Shape (m, n) data, m examples by n features
+        x :    (ndarray Shape (m, n) data, m examples by n features
         y :    (ndarray Shape (m,))  target value 
         slopes : (ndarray Shape (n,))  Initial values of parameters of the model
         intercept : (scalar)              Initial value of parameter of the model
@@ -94,35 +94,32 @@ def gradient_descent(X, y, slopes, intercept, cost_function, gradient_function, 
             running gradient descent
     """
 
-    J_history = []
+    j_history = []
     w_history = []
-    print('before gradient descent')
     for i in range(EPOCHS):
 
-        dj_db, dj_dw = gradient_function(X, y, slopes, intercept, lambda_)
-
+        dj_db, dj_dw = gradient_function(x, y, slopes, intercept, lambda_)
         slopes = slopes - ALPHA * dj_dw
         intercept = intercept - ALPHA * dj_db
 
         if i < 100000:
-            cost = cost_function(X, y, slopes, intercept, lambda_)
-            J_history.append(cost)
-
+            cost = cost_function(x, y, slopes, intercept, lambda_)
+            j_history.append(cost)
         if i % math.ceil(EPOCHS / 10) == 0 or i == (EPOCHS - 1):
             w_history.append(slopes)
-            print(f"Iteration {i:4}: Cost {float(J_history[-1]):8.2f}   ")
+            print(f"Iteration {i:4}: Cost {float(j_history[-1]):8.2f}   ")
 
-    return slopes, intercept, J_history, w_history
+    return slopes, intercept, j_history, w_history
 
 
-def logisticRegression(X, y):
+def logistic_regression(x, y):
     '''The logisticRegression function performs logistic regression on the given input data and plots the
     decision boundary.
 
     Parameters
     ----------
-    X
-        The input matrix X, where each row represents a training example and each column represents a
+    x
+        The input matrix x, where each row represents a training example and each column represents a
     feature.
     y
         The parameter "y" in the logisticRegression function represents the target variable or the
@@ -131,13 +128,12 @@ def logisticRegression(X, y):
     values (0 or 1
 
     '''
-    m, n = X.shape
-    np.random.seed(1)
+    _, n = x.shape
     intercept = 0
     slopes = np.zeros(n)
-    slopes, intercept, J_history, _ = gradient_descent(
-        X, y, slopes, intercept, compute_cost, compute_gradient, 0)
-    tools.plot_decision_boundary(slopes, intercept, X, y)
+    slopes, intercept, _, _ = gradient_descent(
+        x, y, slopes, intercept, compute_cost, compute_gradient, 0)
+    tools.plot_decision_boundary(slopes, intercept, x, y)
     # Set the y-axis label
     plt.ylabel('Exam 2 score')
     # Set the x-axis label
@@ -156,14 +152,14 @@ if __name__ == '__main__':
         print(e)
         sys.exit(e)
 
-    def transformHouses(x): return 1 if x == 'Slytherin' else 0
-    X, y = tools.load_data(
-        args.csv_file, "Hogwarts House", transformHouses)
-    logisticRegression(X, y)
+    def transform_houses(x): return 1 if x == 'Slytherin' else 0
+    x, y = tools.load_data(
+        args.csv_file, "Hogwarts House", transform_houses)
+    logistic_regression(x, y)
     # try:
-    #     X, y = tools.load_data(
+    #     x, y = tools.load_data(
     #         args.csv_file, "Hogwarts House", transformHouses)
-    #     logisticRegression(X, y)
+    #     logisticRegression(x, y)
     # except Exception as e:
     #     print(f"error {e.__class__.__name__}: {e}")
     #     sys.exit(e)
