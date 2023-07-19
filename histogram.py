@@ -9,7 +9,7 @@ HOUSE = 'Hogwarts House'
 def histogram(df):
     for column in df.columns:
         if df[column].dtype != "object":
-            cleaned = tools.removeEmptyFields(df[column])
+            cleaned = tools.remove_empty_fields(df[column])
             if len(cleaned) == 0:
                 continue
             df[column] = tools.normalize_array(cleaned)

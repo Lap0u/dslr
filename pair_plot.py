@@ -54,8 +54,8 @@ def pair_plot(df):
     for row, i in zip(dropped.columns, range(1, length + 1)):
         for col, j in zip(dropped.columns, range(1, length + 1)):
             # print(i, j, row, col)
-            tools.removeEmptyFields(df[col])
-            tools.removeEmptyFields(df[row])
+            tools.remove_empty_fields(df[col])
+            tools.remove_empty_fields(df[row])
             if row == col:
                 histogram(df, row, length, i, j)
             else:

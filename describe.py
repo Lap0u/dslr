@@ -12,7 +12,7 @@ def compute(df, described):
     for column in described.columns:
         if df[column].dtype != "object":
             sorted_values = df[column].sort_values()
-            cleaned = tools.removeEmptyFields(sorted_values)
+            cleaned = tools.remove_empty_fields(sorted_values)
             print('new', cleaned)
             described[column]["count"] = tools.count(cleaned)
             described[column]["mean"] = tools.mean(cleaned)

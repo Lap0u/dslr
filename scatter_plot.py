@@ -8,8 +8,8 @@ HOUSE = 'Hogwarts House'
 
 
 def scatter_plot(df, feat1, feat2):
-    tools.removeEmptyFields(df[feat1])
-    tools.removeEmptyFields(df[feat2])
+    tools.remove_empty_fields(df[feat1])
+    tools.remove_empty_fields(df[feat2])
     plt.scatter(df[df[HOUSE] == 'Slytherin'][feat1], df[df[HOUSE]
                 == 'Slytherin'][feat2], alpha=0.4, label="Slytherin", color="green")
     plt.scatter(df[df[HOUSE] == 'Gryffindor'][feat1], df[df[HOUSE]
