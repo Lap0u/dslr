@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import ml_tools as tools
+import argparse
 
 HOUSE = 'Hogwarts House'
 
@@ -31,11 +32,12 @@ def histogram(df):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) <= 1:
-        sys.exit("Usage: python3 histogram.py <csv file>")
+    parser = argparse.ArgumentParser(description="Plot all histograms of a dataset")
+    parser.add_argument("csv_file", type=str, help="csv file to plot")
+    args = parser.parse_args()
     try:
-        tools.is_valid_path(sys.argv[1])
+        tools.is_valid_path(args.csv_file)
     except Exception as e:
         sys.exit(e)
-    df = pd.read_csv(sys.argv[1]).drop(columns=['Index'])
+    df = pd.read_csv(args.csv_file).drop(columns=['Index'])
     histogram(df)
