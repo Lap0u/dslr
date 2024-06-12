@@ -56,7 +56,6 @@ def std(array, mean):
     sum_ = 0
     for i in array:
         sum_ += (i - mean) ** 2
-    print(sum_)
     return (sum_ / len(array)) ** 0.5
 
 
@@ -128,6 +127,13 @@ def heat_map(df):
 
 def normalize_array(x):
     return (x - x.min()) / (x.max() - x.min())
+
+
+def normalize_df(df):
+    for column in df.columns:
+        if df[column].dtype != "object":
+            df[column] = normalize_array(df[column])
+    return df
 
 
 def denormalize_array(list, elem):
