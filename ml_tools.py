@@ -23,8 +23,8 @@ def load_data(filename: str, target_col_name: str, t: callable):
     return x, y
 
 
-def mean(array):
-    return sum(array) / len(array)
+def mean(series: pd.Series):
+    return series[0].sum() / len(series)
 
 
 def min_(array):
@@ -36,7 +36,7 @@ def min_(array):
 
 
 def quantile(array, q):
-    return array[int(len(array) * q)]
+    return array[0][int(len(array) * q)]
 
 
 def remove_empty_fields(array):
