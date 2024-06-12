@@ -56,13 +56,14 @@ def std(array, mean):
     sum_ = 0
     for i in array:
         sum_ += (i - mean) ** 2
+    print(sum_)
     return (sum_ / len(array)) ** 0.5
 
 
 def is_valid_path(file_path):
-    if path.isfile(file_path) == False:
+    if path.isfile(file_path) is False:
         raise Exception("File does not exist")
-    if (os.access(file_path, os.R_OK)) == False:
+    if (os.access(file_path, os.R_OK)) is False:
         raise Exception("File is not readable")
     if Path(file_path).suffix != ".csv":
         raise Exception("File is not a csv file")
