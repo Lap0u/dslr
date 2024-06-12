@@ -36,8 +36,6 @@ def plot_grouped_histogram(df):
             cleaned = tools.remove_empty_fields(df[column])
             if len(cleaned) == 0:
                 continue
-            df[column] = tools.normalize_array(cleaned)
-
             hist_slytherin = go.Histogram(
                 x=df[df[HOUSE] == "Slytherin"][column],
                 name="Slytherin",
@@ -72,7 +70,9 @@ def plot_grouped_histogram(df):
         title_text="Histograms of Hogwarts Houses",
         height=600 * (num_cols + 1),
         showlegend=False,
+        barmode="overlay",
     )
+
     fig.show()
 
 
@@ -85,8 +85,6 @@ def plot_individual_histogram(df):
             cleaned = tools.remove_empty_fields(df[column])
             if len(cleaned) == 0:
                 continue
-            df[column] = tools.normalize_array(cleaned)
-
             hist_slytherin = go.Histogram(
                 x=df[df[HOUSE] == "Slytherin"][column],
                 name="Slytherin",
@@ -120,6 +118,7 @@ def plot_individual_histogram(df):
             fig.update_layout(
                 title_text=f"Histogram of {column} for Hogwarts Houses",
                 showlegend=True,
+                barmode="overlay",
             )
             fig.show()
 
@@ -128,13 +127,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plot all histograms of a dataset")
     parser.add_argument("csv_file", type=str, help="csv file to plot")
     parser.add_argument("-g", "--group", action="store_true", help="group histograms")
+    parser.add_argument(
+        "-n", "--normalize", action="store_true", help="normalize column"
+    )
     args = parser.parse_args()
     try:
         tools.is_valid_path(args.csv_file)
     except Exception as e:
         sys.exit(e)
     df = pd.read_csv(args.csv_file).drop(columns=["Index"])
-
+    if args.normalize:
+        df = tools.normalize_df(df)
     if args.group:
         plot_grouped_histogram(df)
     else:

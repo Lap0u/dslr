@@ -54,9 +54,9 @@ def max_(array):
 
 def std(array, mean):
     sum_ = 0
-    for i in array:
+    for i in array[0]:
         sum_ += (i - mean) ** 2
-    return (sum_ / len(array)) ** 0.5
+    return (sum_ / (len(array[0]) - 1)) ** 0.5
 
 
 def is_valid_path(file_path):

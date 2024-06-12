@@ -48,6 +48,7 @@ if __name__ == "__main__":
     except Exception as e:
         sys.exit(e)
     df = pd.read_csv(args.csv_file)
+    print(df.describe())  # real one
     if args.normalize:
         df = tools.normalize_df(df)
     describe(df)
