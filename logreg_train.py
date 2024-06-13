@@ -4,7 +4,7 @@ import numpy as np
 import ml_tools as tools
 import argparse
 
-ALPHA = 0.01
+ALPHA = 0.001
 EPOCHS = 1000
 EPSILON = 1e-15
 HOUSE_CONVERTER = {"Slytherin": 1, "Gryffindor": 2, "Ravenclaw": 3, "Hufflepuff": 4}
@@ -24,17 +24,15 @@ def compute_cost(x, y, slopes, intercept, *argv):
         total_cost : (scalar) cost
     """
 
-    m, n = x.shape
+    m, _ = x.shape
     loss = 0
     total_cost = 0
     slopes_x_intercept = x.dot(slopes) + intercept
     f_slopes_intercept_x = tools.sigmoid_(slopes_x_intercept)
-    for i in range(m):
-        loss = loss + (
-            -1 * y[i] * np.log(f_slopes_intercept_x[i] + EPSILON)
-            - (1 - y[i]) * np.log(1 - f_slopes_intercept_x[i] + EPSILON)
-        )
-    total_cost = loss / m
+    loss = -y * np.log(f_slopes_intercept_x + EPSILON) - (1 - y) * np.log(
+        1 - f_slopes_intercept_x + EPSILON
+    )
+    total_cost = np.sum(loss) / m
     return total_cost
 
 
@@ -52,17 +50,13 @@ def compute_gradient(x, y, slopes, intercept, *argv):
         dj_dslopes : (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters slopes.
         dj_dintercept : (scalar)             The gradient of the cost w.r.t. the parameter intercept.
     """
-    m, n = x.shape
-    dj_dslopes = np.zeros(slopes.shape)
-    dj_dintercept = 0.0
-    f_slopes_intercept_i = tools.sigmoid_(x.dot(slopes) + intercept)
-    for i in range(m):
-        err_i = f_slopes_intercept_i[i] - y[i]
-        for col, j in zip(x.columns, range(n)):
-            dj_dslopes[j] = dj_dslopes[j] + err_i * x[col][i]
-        dj_dintercept = dj_dintercept + err_i
-    dj_dslopes = dj_dslopes / m
-    dj_dintercept = dj_dintercept / m
+    m, _ = x.shape
+    predictions = tools.sigmoid_(np.dot(x, slopes) + intercept)
+    errors = predictions - y
+
+    dj_dslopes = (1 / m) * np.dot(x.T, errors)  # Efficient gradient for slopes
+    dj_dintercept = (1 / m) * np.sum(errors)  # Gradient for intercept
+
     return dj_dintercept, dj_dslopes
 
 
@@ -92,13 +86,9 @@ def gradient_descent(
     for _ in range(EPOCHS):
         cost = cost_function(x, y, slopes, intercept, lambda_)
         dj_dintercept, dj_dslopes = gradient_function(x, y, slopes, intercept, lambda_)
-        # print("dj_dslopes", dj_dslopes)
-        # print("dj_dintercept", dj_dintercept)
         intercept = intercept - ALPHA * dj_dintercept
         slopes = slopes - ALPHA * dj_dslopes
-        print("cost", cost)
-        # print("intercept", intercept)
-        # print("slopes", slopes)
+        print(f"Cost: {cost}")
     return slopes, intercept, dj_dslopes, dj_dintercept
 
 
