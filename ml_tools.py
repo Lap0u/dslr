@@ -18,6 +18,7 @@ def load_data(filename: str, target_col_name: str, t: callable):
         .drop(["Index"], axis=1)
         .select_dtypes(include=["float64", "int64"])
     )
+    df.fillna(df.mean(), inplace=True)
     y = df[target_col_name]
     x = df.drop([target_col_name], axis=1)
     return x, y
@@ -93,7 +94,10 @@ def map_feature(x1, x2):
 
 def plot_decision_boundary(w, b, x, y):
     # Credit to dibgerge on Github for this plotting code
-
+    print("w", w)
+    print("b", b)
+    print("x", x)
+    print("y", y)
     plot_data(x[:, 0:2], y)
 
     if x.shape[1] <= 2:

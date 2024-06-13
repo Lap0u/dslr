@@ -1,14 +1,14 @@
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import seaborn as sns
 import ml_tools as tools
 import argparse
 
-ALPHA = 0.00001
-EPOCHS = 100
+ALPHA = 0.01
+EPOCHS = 1000
+EPSILON = 1e-15
 HOUSE_CONVERTER = {"Slytherin": 1, "Gryffindor": 2, "Ravenclaw": 3, "Hufflepuff": 4}
+HOUSE_CONVERTER = {"Slytherin": 1, "Ravenclaw": 0}
 
 
 def compute_cost(x, y, slopes, intercept, *argv):
@@ -27,17 +27,13 @@ def compute_cost(x, y, slopes, intercept, *argv):
     m, n = x.shape
     loss = 0
     total_cost = 0
+    slopes_x_intercept = x.dot(slopes) + intercept
+    f_slopes_intercept_x = tools.sigmoid_(slopes_x_intercept)
     for i in range(m):
-        slopes_x_intercept = 0
-        for col, j in zip(x.columns, range(n)):
-            slopes_x_intercept = slopes_x_intercept + x[col][j] * slopes[j]
-        slopes_x_intercept = slopes_x_intercept + intercept
-        f_slopes_intercept_x = tools.sigmoid_(slopes_x_intercept)
         loss = loss + (
-            -1 * y[i] * np.log(f_slopes_intercept_x)
-            - (1 - y[i]) * np.log(1 - f_slopes_intercept_x)
+            -1 * y[i] * np.log(f_slopes_intercept_x[i] + EPSILON)
+            - (1 - y[i]) * np.log(1 - f_slopes_intercept_x[i] + EPSILON)
         )
-    print("L", loss)
     total_cost = loss / m
     return total_cost
 
@@ -59,8 +55,8 @@ def compute_gradient(x, y, slopes, intercept, *argv):
     m, n = x.shape
     dj_dslopes = np.zeros(slopes.shape)
     dj_dintercept = 0.0
+    f_slopes_intercept_i = tools.sigmoid_(x.dot(slopes) + intercept)
     for i in range(m):
-        f_slopes_intercept_i = tools.sigmoid_(x.dot(slopes) + intercept)
         err_i = f_slopes_intercept_i[i] - y[i]
         for col, j in zip(x.columns, range(n)):
             dj_dslopes[j] = dj_dslopes[j] + err_i * x[col][i]
@@ -96,12 +92,26 @@ def gradient_descent(
     for _ in range(EPOCHS):
         cost = cost_function(x, y, slopes, intercept, lambda_)
         dj_dintercept, dj_dslopes = gradient_function(x, y, slopes, intercept, lambda_)
+        # print("dj_dslopes", dj_dslopes)
+        # print("dj_dintercept", dj_dintercept)
         intercept = intercept - ALPHA * dj_dintercept
         slopes = slopes - ALPHA * dj_dslopes
         print("cost", cost)
-        print("intercept", intercept)
-        print("slopes", slopes)
+        # print("intercept", intercept)
+        # print("slopes", slopes)
     return slopes, intercept, dj_dslopes, dj_dintercept
+
+
+def save_theta(slopes, intercept):
+    """
+    Saves the theta values to a file
+    slopes : (ndarray Shape (n,)) Updated values of parameters of the model after
+        running gradient descent
+    intercept : (scalar)                Updated value of parameter of the model after
+        running gradient descent
+    """
+    np.save("slopes.npy", slopes)
+    np.save("intercept.npy", intercept)
 
 
 def logistic_regression(x, y):
@@ -121,18 +131,16 @@ def logistic_regression(x, y):
 
     """
     _, n = x.shape
-    intercept = 0
-    slopes = np.zeros(n)
+    slopes = np.random.rand(n)
+    intercept = 1.45
     slopes, intercept, _, _ = gradient_descent(
         x, y, slopes, intercept, compute_cost, compute_gradient, 0
     )
-    tools.plot_decision_boundary(slopes, intercept, x, y)
-    # Set the y-axis label
-    plt.ylabel("Exam 2 score")
-    # Set the x-axis label
-    plt.xlabel("Exam 1 score")
-    plt.legend(loc="upper right")
-    plt.show()
+    save_theta(slopes, intercept)
+
+
+def transform_houses(x):
+    return HOUSE_CONVERTER[x]
 
 
 if __name__ == "__main__":
@@ -145,12 +153,9 @@ if __name__ == "__main__":
         print(e)
         sys.exit(e)
 
-    def transform_houses(x):
-        return HOUSE_CONVERTER[x]
-
     x, y = tools.load_data(args.csv_file, "Hogwarts House", transform_houses)
-    print(x, y)
-    # logistic_regression(x, y)
+    x = tools.normalize_df(x)
+    logistic_regression(x, y)
     # try:
     #     x, y = tools.load_data(
     #         args.csv_file, "Hogwarts House", transformHouses)
