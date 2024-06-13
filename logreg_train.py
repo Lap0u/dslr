@@ -4,8 +4,8 @@ import numpy as np
 import ml_tools as tools
 import argparse
 
-ALPHA = 0.001
-EPOCHS = 1000
+ALPHA = 0.01
+EPOCHS = 10000
 EPSILON = 1e-15
 HOUSE_CONVERTER = {"Slytherin": 1, "Gryffindor": 2, "Ravenclaw": 3, "Hufflepuff": 4}
 HOUSE_CONVERTER = {"Slytherin": 1, "Ravenclaw": 0}
@@ -54,14 +54,14 @@ def compute_gradient(x, y, slopes, intercept, *argv):
     predictions = tools.sigmoid_(np.dot(x, slopes) + intercept)
     errors = predictions - y
 
-    dj_dslopes = (1 / m) * np.dot(x.T, errors)  # Efficient gradient for slopes
-    dj_dintercept = (1 / m) * np.sum(errors)  # Gradient for intercept
+    dj_dslopes = (1 / m) * np.dot(x.T, errors)
+    dj_dintercept = (1 / m) * np.sum(errors)
 
     return dj_dintercept, dj_dslopes
 
 
 def gradient_descent(
-    x, y, slopes, intercept, cost_function, gradient_function, lambda_
+    x, y, slopes, intercept, cost_function, gradient_function, lambda_, cost_show
 ):
     """
     Performs batch gradient descent to learn theta. Updates theta by taking
@@ -82,14 +82,16 @@ def gradient_descent(
         intercept : (scalar)                Updated value of parameter of the model after
             running gradient descent
     """
-
+    cost_history = []
     for _ in range(EPOCHS):
-        cost = cost_function(x, y, slopes, intercept, lambda_)
+        if cost_show:
+            cost = cost_function(x, y, slopes, intercept, lambda_)
+            print(f"Cost: {cost}")
+            cost_history.append(cost)
         dj_dintercept, dj_dslopes = gradient_function(x, y, slopes, intercept, lambda_)
         intercept = intercept - ALPHA * dj_dintercept
         slopes = slopes - ALPHA * dj_dslopes
-        print(f"Cost: {cost}")
-    return slopes, intercept, dj_dslopes, dj_dintercept
+    return slopes, intercept, cost_history
 
 
 def save_theta(slopes, intercept):
@@ -104,7 +106,15 @@ def save_theta(slopes, intercept):
     np.save("intercept.npy", intercept)
 
 
-def logistic_regression(x, y):
+def show_cost(cost_history):
+    plt.title("Cost Function over Epochs (normalized values)")
+    plt.xlabel("Epochs")
+    plt.ylabel("Cost")
+    plt.plot(cost_history)
+    plt.show()
+
+
+def logistic_regression(x, y, cost_show=False):
     """The logisticRegression function performs logistic regression on the given input data and plots the
     decision boundary.
 
@@ -123,9 +133,11 @@ def logistic_regression(x, y):
     _, n = x.shape
     slopes = np.random.rand(n)
     intercept = 1.45
-    slopes, intercept, _, _ = gradient_descent(
-        x, y, slopes, intercept, compute_cost, compute_gradient, 0
+    slopes, intercept, cost_history = gradient_descent(
+        x, y, slopes, intercept, compute_cost, compute_gradient, 0, cost_show
     )
+    if cost_show:
+        show_cost(cost_history)
     save_theta(slopes, intercept)
 
 
@@ -136,6 +148,9 @@ def transform_houses(x):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("csv_file", type=str, help="csv file")
+    parser.add_argument(
+        "-c", "--cost", action="store_true", help="Display and plot the cost function"
+    )
     args = parser.parse_args()
     try:
         tools.is_valid_path(args.csv_file)
@@ -145,7 +160,7 @@ if __name__ == "__main__":
 
     x, y = tools.load_data(args.csv_file, "Hogwarts House", transform_houses)
     x = tools.normalize_df(x)
-    logistic_regression(x, y)
+    logistic_regression(x, y, args.cost)
     # try:
     #     x, y = tools.load_data(
     #         args.csv_file, "Hogwarts House", transformHouses)
