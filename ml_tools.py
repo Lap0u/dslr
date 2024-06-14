@@ -120,6 +120,20 @@ def plot_decision_boundary(w, b, x, y):
         plt.contour(u, v, z, levels=[0.5], colors="g")
 
 
+def mad(array, mean):
+    sum_ = 0
+    for i in array[0]:
+        sum_ += abs(i - mean)
+    return sum_ / len(array[0])
+
+
+def skew(array, mean):
+    sum_ = 0
+    for i in array[0]:
+        sum_ += (i - mean) ** 3
+    return sum_ / len(array[0]) / (std(array, mean) ** 3)
+
+
 def heat_map(df):
     sns.heatmap(df, annot=True)
     plt.show()
