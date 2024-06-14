@@ -134,8 +134,11 @@ def skew(array, mean):
     return sum_ / len(array[0]) / (std(array, mean) ** 3)
 
 
-def heat_map(df):
-    sns.heatmap(df, annot=True)
+def heatmap(df):
+    plt.figure(figsize=(12, 8))
+    plt.title("Correlation Heatmap")
+    plt.margins(1)
+    sns.heatmap(df.corr(), annot=True, cmap="coolwarm")
     plt.show()
 
 

@@ -74,13 +74,12 @@ def scatter_plot(df, row, col, length, i, j):
         ax.set_xlabel(col.replace(" ", "\n"), fontsize=8)
 
 
-def pair_plot(df):
+def pair_plot(df, heatmap=False):
     dropped = df.dropna(how="all", axis=1).select_dtypes([np.int64, np.float64])
     length = len(dropped.columns)
     plt.rcParams["figure.figsize"] = [50, 42]
     for row, i in zip(dropped.columns, range(1, length + 1)):
         for col, j in zip(dropped.columns, range(1, length + 1)):
-            # print(i, j, row, col)
             tools.remove_empty_fields(df[col])
             tools.remove_empty_fields(df[row])
             if row == col:
@@ -90,15 +89,18 @@ def pair_plot(df):
     plt.suptitle("Pair plot for each combination of two features", fontsize=20)
     plt.legend(bbox_to_anchor=(1.04, 1))
     plt.show()
+    if args.heatmap:
+        tools.heatmap(dropped)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plot the pair_plot of a dataset")
     parser.add_argument("csv_file", type=str, help="csv file to plot")
+    parser.add_argument("-hm", "--heatmap", action="store_true", help="plot heatmap")
     args = parser.parse_args()
     try:
         tools.is_valid_path(args.csv_file)
     except Exception as e:
         sys.exit(e)
     df = pd.read_csv(args.csv_file).drop(columns=["Index"])
-    pair_plot(df)
+    pair_plot(df, args.heatmap)
