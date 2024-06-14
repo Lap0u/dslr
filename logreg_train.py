@@ -64,7 +64,7 @@ def transform_houses(y, house):
 
 
 def gradient_descent(
-    x, y, slopes, intercept, cost_function, gradient_function, lambda_, cost_show
+    x, y, slopes_s, intercept_s, cost_function, gradient_function, lambda_, cost_show
 ):
     """
     Performs batch gradient descent to learn theta. Updates theta by taking
@@ -86,20 +86,26 @@ def gradient_descent(
             running gradient descent
     """
     cost_history = []
+    intercept = []
+    slopes = []
     for j in range(len(HOUSES)):
         cost_history.append([])
+        intercept.append([])
+        slopes.append([])
+        intercept[j] = intercept_s
+        slopes[j] = slopes_s
         transformed_y = transform_houses(y, HOUSES[j])
         for i in range(EPOCHS):
             if cost_show:
-                cost = cost_function(x, transformed_y, slopes, intercept, lambda_)
+                cost = cost_function(x, transformed_y, slopes[j], intercept[j], lambda_)
                 if i % 100 == 0:
                     print(f"Epoch: {i} <-> Cost: {cost}")
                 cost_history[j].append(cost)
             dj_dintercept, dj_dslopes = gradient_function(
-                x, transformed_y, slopes, intercept, lambda_
+                x, transformed_y, slopes[j], intercept[j], lambda_
             )
-            intercept = intercept - ALPHA * dj_dintercept
-            slopes = slopes - ALPHA * dj_dslopes
+            intercept[j] = intercept[j] - ALPHA * dj_dintercept
+            slopes[j] = slopes[j] - ALPHA * dj_dslopes
     return slopes, intercept, cost_history
 
 
@@ -127,9 +133,15 @@ def show_cost(cost_history):
 
 
 def compute_accuracy(x, y, slopes, intercept):
-    predictions = tools.sigmoid_(np.dot(x, slopes) + intercept)
-    predictions = np.where(predictions > 0.5, 1, 0)
-    return np.mean(predictions == y)
+    predictions = []
+    for j in range(len(HOUSES)):
+        predictions.append([])
+        predictions[j] = tools.sigmoid_(np.dot(x, slopes[j]) + intercept[j])
+    predictions = np.argmax(predictions, axis=0)
+    print(predictions)
+    house_predictions = [HOUSES[p] for p in predictions]
+    print("tr", house_predictions)
+    return np.mean(house_predictions == y)
 
 
 def logistic_regression(x, y, cost_show=False, accuracy_show=False):
@@ -154,11 +166,11 @@ def logistic_regression(x, y, cost_show=False, accuracy_show=False):
     slopes, intercept, cost_history = gradient_descent(
         x, y, slopes, intercept, compute_cost, compute_gradient, 0, cost_show
     )
+    save_theta(slopes, intercept)
     if accuracy_show:
         print("Accuracy: ", compute_accuracy(x, y, slopes, intercept))
     if cost_show:
         show_cost(cost_history)
-    save_theta(slopes, intercept)
 
 
 if __name__ == "__main__":

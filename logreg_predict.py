@@ -4,24 +4,18 @@ import pandas as pd
 import argparse
 import numpy as np
 
-HOUSE_CONVERTER = {"Slytherin": 1, "Gryffindor": 2, "Ravenclaw": 3, "Hufflepuff": 4}
-HOUSE_CONVERTER = {"Slytherin": 1, "Ravenclaw": 0}
-
-
-def back_to_house(predictions):
-    results = []
-    for i in predictions:
-        if i > 0.5:
-            results.append("Slytherin")
-        else:
-            results.append("Ravenclaw")
-    return results
+HOUSES = ["Slytherin", "Gryffindor", "Ravenclaw", "Hufflepuff"]
 
 
 def predict(df, slopes, intercept):
-    predictions = tools.sigmoid_(np.dot(df, slopes) + intercept)
-    results = back_to_house(predictions)
-    df["Hogwarts House"] = results
+    predictions = []
+    for j in range(len(HOUSES)):
+        predictions.append([])
+        predictions[j] = tools.sigmoid_(np.dot(df, slopes[j]) + intercept[j])
+    predictions = np.argmax(predictions, axis=0)
+    print(predictions)
+    house_predictions = [HOUSES[p] for p in predictions]
+    df["Hogwarts House"] = house_predictions
     df.to_csv(
         "houses.csv",
         index=True,
