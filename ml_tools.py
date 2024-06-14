@@ -12,16 +12,12 @@ def count(array):
     return len(array)
 
 
-def load_data(filename: str, target_col_name: str, t: callable):
-    df = (
-        pd.read_csv(filename, sep=",", converters={target_col_name: t})
-        .drop(["Index"], axis=1)
-        .select_dtypes(include=["float64", "int64"])
-    )
+def load_data(filename: str, target_col_name: str):
+    df = pd.read_csv(filename, sep=",").drop(["Index"], axis=1)
+    y = df["Hogwarts House"]
+    df = df.select_dtypes(include=["float64", "int64"])
     df.fillna(df.mean(), inplace=True)
-    y = df[target_col_name]
-    x = df.drop([target_col_name], axis=1)
-    return x, y
+    return df, y
 
 
 def mean(series: pd.Series):

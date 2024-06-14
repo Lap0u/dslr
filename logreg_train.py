@@ -7,8 +7,7 @@ import argparse
 ALPHA = 0.01
 EPOCHS = 10000
 EPSILON = 1e-15
-HOUSE_CONVERTER = {"Slytherin": 1, "Gryffindor": 2, "Ravenclaw": 3, "Hufflepuff": 4}
-HOUSE_CONVERTER = {"Slytherin": 1, "Ravenclaw": 0}
+HOUSES = ["Slytherin", "Gryffindor", "Ravenclaw", "Hufflepuff"]
 
 
 def compute_cost(x, y, slopes, intercept, *argv):
@@ -60,6 +59,10 @@ def compute_gradient(x, y, slopes, intercept, *argv):
     return dj_dintercept, dj_dslopes
 
 
+def transform_houses(y, house):
+    return np.where(y == house, 1, 0)
+
+
 def gradient_descent(
     x, y, slopes, intercept, cost_function, gradient_function, lambda_, cost_show
 ):
@@ -83,14 +86,20 @@ def gradient_descent(
             running gradient descent
     """
     cost_history = []
-    for _ in range(EPOCHS):
-        if cost_show:
-            cost = cost_function(x, y, slopes, intercept, lambda_)
-            print(f"Cost: {cost}")
-            cost_history.append(cost)
-        dj_dintercept, dj_dslopes = gradient_function(x, y, slopes, intercept, lambda_)
-        intercept = intercept - ALPHA * dj_dintercept
-        slopes = slopes - ALPHA * dj_dslopes
+    for j in range(len(HOUSES)):
+        cost_history.append([])
+        transformed_y = transform_houses(y, HOUSES[j])
+        for i in range(EPOCHS):
+            if cost_show:
+                cost = cost_function(x, transformed_y, slopes, intercept, lambda_)
+                if i % 100 == 0:
+                    print(f"Epoch: {i} <-> Cost: {cost}")
+                cost_history[j].append(cost)
+            dj_dintercept, dj_dslopes = gradient_function(
+                x, transformed_y, slopes, intercept, lambda_
+            )
+            intercept = intercept - ALPHA * dj_dintercept
+            slopes = slopes - ALPHA * dj_dslopes
     return slopes, intercept, cost_history
 
 
@@ -107,14 +116,23 @@ def save_theta(slopes, intercept):
 
 
 def show_cost(cost_history):
-    plt.title("Cost Function over Epochs (normalized values)")
-    plt.xlabel("Epochs")
-    plt.ylabel("Cost")
-    plt.plot(cost_history)
+    colors = ["red", "blue", "green", "magenta"]
+    fig, axs = plt.subplots(2, 2)
+    fig.suptitle("Cost function")
+    for i in range(len(HOUSES)):
+        axs[i // 2, i % 2].plot(cost_history[i], color=colors[i])
+        axs[i // 2, i % 2].set_title(f"{HOUSES[i]} vs all")
+    fig.tight_layout(pad=3.0)
     plt.show()
 
 
-def logistic_regression(x, y, cost_show=False):
+def compute_accuracy(x, y, slopes, intercept):
+    predictions = tools.sigmoid_(np.dot(x, slopes) + intercept)
+    predictions = np.where(predictions > 0.5, 1, 0)
+    return np.mean(predictions == y)
+
+
+def logistic_regression(x, y, cost_show=False, accuracy_show=False):
     """The logisticRegression function performs logistic regression on the given input data and plots the
     decision boundary.
 
@@ -136,13 +154,11 @@ def logistic_regression(x, y, cost_show=False):
     slopes, intercept, cost_history = gradient_descent(
         x, y, slopes, intercept, compute_cost, compute_gradient, 0, cost_show
     )
+    if accuracy_show:
+        print("Accuracy: ", compute_accuracy(x, y, slopes, intercept))
     if cost_show:
         show_cost(cost_history)
     save_theta(slopes, intercept)
-
-
-def transform_houses(x):
-    return HOUSE_CONVERTER[x]
 
 
 if __name__ == "__main__":
@@ -151,6 +167,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c", "--cost", action="store_true", help="Display and plot the cost function"
     )
+    parser.add_argument(
+        "-a",
+        "--accuracy",
+        action="store_true",
+        help="Display the accuracy of the model",
+    )
     args = parser.parse_args()
     try:
         tools.is_valid_path(args.csv_file)
@@ -158,9 +180,9 @@ if __name__ == "__main__":
         print(e)
         sys.exit(e)
 
-    x, y = tools.load_data(args.csv_file, "Hogwarts House", transform_houses)
+    x, y = tools.load_data(args.csv_file, "Hogwarts House")
     x = tools.normalize_df(x)
-    logistic_regression(x, y, args.cost)
+    logistic_regression(x, y, args.cost, args.accuracy)
     # try:
     #     x, y = tools.load_data(
     #         args.csv_file, "Hogwarts House", transformHouses)
