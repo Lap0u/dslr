@@ -72,7 +72,7 @@ def gradient_descent(
     gradient_function,
     lambda_,
     cost_show,
-    mini_batch,
+    batch=None,
 ):
     """
     Performs batch gradient descent to learn theta. Updates theta by taking
@@ -96,7 +96,7 @@ def gradient_descent(
     cost_history = []
     intercept = []
     slopes = []
-    # use mini batch here
+
     for j in range(len(HOUSES)):
         cost_history.append([])
         intercept.append([])
@@ -105,13 +105,18 @@ def gradient_descent(
         slopes[j] = slopes_s
         transformed_y = transform_houses(y, HOUSES[j])
         for i in range(EPOCHS):
+            batched_x, batched_y = x, transformed_y
+            if batch:
+                batched_x, batched_y = tools.get_mini_batches(x, transformed_y, batch)
             if cost_show:
-                cost = cost_function(x, transformed_y, slopes[j], intercept[j], lambda_)
+                cost = cost_function(
+                    batched_x, batched_y, slopes[j], intercept[j], lambda_
+                )
                 if i % 100 == 0:
                     print(f"Epoch: {i} <-> Cost: {cost}")
                 cost_history[j].append(cost)
             dj_dintercept, dj_dslopes = gradient_function(
-                x, transformed_y, slopes[j], intercept[j], lambda_
+                batched_x, batched_y, slopes[j], intercept[j], lambda_
             )
             intercept[j] = intercept[j] - ALPHA * dj_dintercept
             slopes[j] = slopes[j] - ALPHA * dj_dslopes

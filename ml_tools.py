@@ -12,6 +12,13 @@ def count(array):
     return len(array)
 
 
+def get_mini_batches(x, transformed_y, batch):
+    rand_val = np.random.randint(0, len(x), batch)
+    batched_x = x.iloc[rand_val]
+    batched_y = transformed_y[rand_val]
+    return batched_x, batched_y
+
+
 def load_data(filename: str, target_col_name: str):
     df = pd.read_csv(filename, sep=",").drop(["Index"], axis=1)
     y = df["Hogwarts House"]
