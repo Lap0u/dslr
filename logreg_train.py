@@ -64,7 +64,15 @@ def transform_houses(y, house):
 
 
 def gradient_descent(
-    x, y, slopes_s, intercept_s, cost_function, gradient_function, lambda_, cost_show
+    x,
+    y,
+    slopes_s,
+    intercept_s,
+    cost_function,
+    gradient_function,
+    lambda_,
+    cost_show,
+    mini_batch,
 ):
     """
     Performs batch gradient descent to learn theta. Updates theta by taking
@@ -88,6 +96,7 @@ def gradient_descent(
     cost_history = []
     intercept = []
     slopes = []
+    # use mini batch here
     for j in range(len(HOUSES)):
         cost_history.append([])
         intercept.append([])
@@ -144,7 +153,9 @@ def compute_accuracy(x, y, slopes, intercept):
     return np.mean(house_predictions == y)
 
 
-def logistic_regression(x, y, cost_show=False, accuracy_show=False):
+def logistic_regression(
+    x, y, cost_show=False, accuracy_show=False, stochastic=False, mini_batch=None
+):
     """The logisticRegression function performs logistic regression on the given input data and plots the
     decision boundary.
 
@@ -163,8 +174,18 @@ def logistic_regression(x, y, cost_show=False, accuracy_show=False):
     _, n = x.shape
     slopes = np.random.rand(n)
     intercept = 1.45
+    if stochastic:
+        mini_batch = 1
     slopes, intercept, cost_history = gradient_descent(
-        x, y, slopes, intercept, compute_cost, compute_gradient, 0, cost_show
+        x,
+        y,
+        slopes,
+        intercept,
+        compute_cost,
+        compute_gradient,
+        0,
+        cost_show,
+        mini_batch,
     )
     save_theta(slopes, intercept)
     if accuracy_show:
@@ -185,6 +206,15 @@ if __name__ == "__main__":
         action="store_true",
         help="Display the accuracy of the model",
     )
+    parser.add_argument(
+        "-s",
+        "--stochastic",
+        action="store_true",
+        help="Use stochastic gradient descent",
+    )
+    parser.add_argument(
+        "-mb", "--mini-batch", type=int, help="Use batch gradient descent"
+    )
     args = parser.parse_args()
     try:
         tools.is_valid_path(args.csv_file)
@@ -194,7 +224,9 @@ if __name__ == "__main__":
 
     x, y = tools.load_data(args.csv_file, "Hogwarts House")
     x = tools.normalize_df(x)
-    logistic_regression(x, y, args.cost, args.accuracy)
+    logistic_regression(
+        x, y, args.cost, args.accuracy, args.stochastic, args.mini_batch
+    )
     # try:
     #     x, y = tools.load_data(
     #         args.csv_file, "Hogwarts House", transformHouses)
