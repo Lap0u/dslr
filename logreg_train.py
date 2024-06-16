@@ -96,6 +96,11 @@ def gradient_descent(
     cost_history = []
     intercept = []
     slopes = []
+    if cost_show:
+        colors = ["red", "blue", "green", "magenta"]
+        fig, axs = plt.subplots(2, 2)
+        fig.suptitle("Cost function")
+        fig.tight_layout(pad=3.0)
 
     for j in range(len(HOUSES)):
         cost_history.append([])
@@ -115,6 +120,8 @@ def gradient_descent(
                 if i % 100 == 0:
                     print(f"Epoch: {i} <-> Cost: {cost}")
                 cost_history[j].append(cost)
+                show_cost(cost_history, colors, axs, i, j)
+
             dj_dintercept, dj_dslopes = gradient_function(
                 batched_x, batched_y, slopes[j], intercept[j], lambda_
             )
@@ -135,15 +142,15 @@ def save_theta(slopes, intercept):
     np.save("intercept.npy", intercept)
 
 
-def show_cost(cost_history):
-    colors = ["red", "blue", "green", "magenta"]
-    fig, axs = plt.subplots(2, 2)
-    fig.suptitle("Cost function")
-    for i in range(len(HOUSES)):
-        axs[i // 2, i % 2].plot(cost_history[i], color=colors[i])
-        axs[i // 2, i % 2].set_title(f"{HOUSES[i]} vs all")
-    fig.tight_layout(pad=3.0)
-    plt.show()
+def show_cost(cost_history, colors, axs, epoch, curr_cost_index):
+    axs[curr_cost_index // 2, curr_cost_index % 2].plot(
+        cost_history[curr_cost_index], color=colors[curr_cost_index]
+    )
+    axs[curr_cost_index // 2, curr_cost_index % 2].set_title(
+        f"{HOUSES[curr_cost_index]} vs all"
+    )
+    if epoch % 100 == 0:
+        plt.pause(0.001)
 
 
 def compute_accuracy(x, y, slopes, intercept):
@@ -195,8 +202,6 @@ def logistic_regression(
     save_theta(slopes, intercept)
     if accuracy_show:
         print("Accuracy: ", compute_accuracy(x, y, slopes, intercept))
-    if cost_show:
-        show_cost(cost_history)
 
 
 if __name__ == "__main__":
