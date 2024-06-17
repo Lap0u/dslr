@@ -5,7 +5,7 @@ import ml_tools as tools
 import argparse
 
 ALPHA = 0.01
-EPOCHS = 10000
+EPOCHS = 5000
 EPSILON = 1e-15
 HOUSES = ["Slytherin", "Gryffindor", "Ravenclaw", "Hufflepuff"]
 
