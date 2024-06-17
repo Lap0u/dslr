@@ -6,6 +6,7 @@ from pathlib import Path
 import seaborn as sns
 import math
 import pandas as pd
+from sklearn.metrics import confusion_matrix
 
 
 def count(array):
@@ -79,6 +80,18 @@ def plot_data(x, y, pos_label="y=1", neg_label="y=0"):
     # Plot examples
     plt.plot(x[positive, 0], x[positive, 1], "k+", label=pos_label)
     plt.plot(x[negative, 0], x[negative, 1], "yo", label=neg_label)
+
+
+def plot_confusion_matrix(houses, house_predictions, labels):
+    cm = confusion_matrix(houses, house_predictions)
+    plt.figure(figsize=(10, 7))
+    sns.heatmap(
+        cm, annot=True, fmt="d", cmap="coolwarm", xticklabels=labels, yticklabels=labels
+    )
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.title("Confusion Matrix")
+    plt.show()
 
 
 def map_feature(x1, x2):

@@ -10,7 +10,7 @@ EPSILON = 1e-15
 HOUSES = ["Slytherin", "Gryffindor", "Ravenclaw", "Hufflepuff"]
 
 
-def compute_cost(x, y, slopes, intercept, *argv):
+def compute_cost(x, y, slopes, intercept):
     """
     Computes the cost over all examples
     Args:
@@ -18,7 +18,6 @@ def compute_cost(x, y, slopes, intercept, *argv):
         y : (ndarray Shape (m,))  target value
         slopes : (ndarray Shape (n,))  values of parameters of the model
         intercept : (scalar)              value of bias parameter of the model
-      *argv : unused, for compatibility with regularized version below
     Returns:
         total_cost : (scalar) cost
     """
@@ -35,7 +34,7 @@ def compute_cost(x, y, slopes, intercept, *argv):
     return total_cost
 
 
-def compute_gradient(x, y, slopes, intercept, *argv):
+def compute_gradient(x, y, slopes, intercept):
     """
     Computes the gradient for logistic regression
 
@@ -44,7 +43,6 @@ def compute_gradient(x, y, slopes, intercept, *argv):
         y : (ndarray Shape (m,))  target value
         slopes : (ndarray Shape (n,))  values of parameters of the model
         intercept : (scalar)              value of bias parameter of the model
-        *argv : unused, for compatibility with regularized version below
         Returns
         dj_dslopes : (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters slopes.
         dj_dintercept : (scalar)             The gradient of the cost w.r.t. the parameter intercept.
@@ -70,7 +68,6 @@ def gradient_descent(
     intercept_s,
     cost_function,
     gradient_function,
-    lambda_,
     cost_show,
     batch=None,
 ):
@@ -114,16 +111,14 @@ def gradient_descent(
             if batch:
                 batched_x, batched_y = tools.get_mini_batches(x, transformed_y, batch)
             if cost_show:
-                cost = cost_function(
-                    batched_x, batched_y, slopes[j], intercept[j], lambda_
-                )
+                cost = cost_function(batched_x, batched_y, slopes[j], intercept[j])
                 if i % 100 == 0:
                     print(f"Epoch: {i} <-> Cost: {cost}")
                 cost_history[j].append(cost)
                 show_cost(cost_history, colors, axs, i, j)
 
             dj_dintercept, dj_dslopes = gradient_function(
-                batched_x, batched_y, slopes[j], intercept[j], lambda_
+                batched_x, batched_y, slopes[j], intercept[j]
             )
             intercept[j] = intercept[j] - ALPHA * dj_dintercept
             slopes[j] = slopes[j] - ALPHA * dj_dslopes
@@ -143,13 +138,13 @@ def save_theta(slopes, intercept):
 
 
 def show_cost(cost_history, colors, axs, epoch, curr_cost_index):
-    axs[curr_cost_index // 2, curr_cost_index % 2].plot(
-        cost_history[curr_cost_index], color=colors[curr_cost_index]
-    )
-    axs[curr_cost_index // 2, curr_cost_index % 2].set_title(
-        f"{HOUSES[curr_cost_index]} vs all"
-    )
-    if epoch % 100 == 0:
+    if epoch % 1000 == 0:
+        axs[curr_cost_index // 2, curr_cost_index % 2].plot(
+            cost_history[curr_cost_index], color=colors[curr_cost_index]
+        )
+        axs[curr_cost_index // 2, curr_cost_index % 2].set_title(
+            f"{HOUSES[curr_cost_index]} vs all"
+        )
         plt.pause(0.001)
 
 
@@ -159,14 +154,28 @@ def compute_accuracy(x, y, slopes, intercept):
         predictions.append([])
         predictions[j] = tools.sigmoid_(np.dot(x, slopes[j]) + intercept[j])
     predictions = np.argmax(predictions, axis=0)
-    print(predictions)
     house_predictions = [HOUSES[p] for p in predictions]
-    print("tr", house_predictions)
     return np.mean(house_predictions == y)
 
 
+def compute_confusion_matrix(x, y, slopes, intercept):
+    predictions = []
+    for j in range(len(HOUSES)):
+        predictions.append([])
+        predictions[j] = tools.sigmoid_(np.dot(x, slopes[j]) + intercept[j])
+    predictions = np.argmax(predictions, axis=0)
+    house_predictions = [HOUSES[p] for p in predictions]
+    tools.plot_confusion_matrix(y, house_predictions, HOUSES)
+
+
 def logistic_regression(
-    x, y, cost_show=False, accuracy_show=False, stochastic=False, mini_batch=None
+    x,
+    y,
+    cost_show=False,
+    accuracy_show=False,
+    stochastic=False,
+    mini_batch=None,
+    confusion_matrix=False,
 ):
     """The logisticRegression function performs logistic regression on the given input data and plots the
     decision boundary.
@@ -188,20 +197,21 @@ def logistic_regression(
     intercept = 1.45
     if stochastic:
         mini_batch = 1
-    slopes, intercept, cost_history = gradient_descent(
+    slopes, intercept, _ = gradient_descent(
         x,
         y,
         slopes,
         intercept,
         compute_cost,
         compute_gradient,
-        0,
         cost_show,
         mini_batch,
     )
     save_theta(slopes, intercept)
     if accuracy_show:
         print("Accuracy: ", compute_accuracy(x, y, slopes, intercept))
+    if confusion_matrix:
+        compute_confusion_matrix(x, y, slopes, intercept)
 
 
 if __name__ == "__main__":
@@ -223,6 +233,12 @@ if __name__ == "__main__":
         help="Use stochastic gradient descent",
     )
     parser.add_argument(
+        "-cm",
+        "--confusion-matrix",
+        action="store_true",
+        help="Display the confusion matrix",
+    )
+    parser.add_argument(
         "-mb", "--mini-batch", type=int, help="Use batch gradient descent"
     )
     args = parser.parse_args()
@@ -235,12 +251,11 @@ if __name__ == "__main__":
     x, y = tools.load_data(args.csv_file, "Hogwarts House")
     x = tools.normalize_df(x)
     logistic_regression(
-        x, y, args.cost, args.accuracy, args.stochastic, args.mini_batch
+        x,
+        y,
+        args.cost,
+        args.accuracy,
+        args.stochastic,
+        args.mini_batch,
+        args.confusion_matrix,
     )
-    # try:
-    #     x, y = tools.load_data(
-    #         args.csv_file, "Hogwarts House", transformHouses)
-    #     logisticRegression(x, y)
-    # except Exception as e:
-    #     print(f"error {e.__class__.__name__}: {e}")
-    #     sys.exit(e)
