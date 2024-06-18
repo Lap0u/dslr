@@ -26,23 +26,28 @@ def predict(df, slopes, intercept):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("csv_file", type=str, help="csv file")
-    parser.add_argument("slopes_path", type=str, help="csv file")
-    parser.add_argument("intercept_path", type=str, help="csv file")
-    args = parser.parse_args()
     try:
-        tools.is_valid_path(args.csv_file)
-        slopes = np.load(args.slopes_path)
-        intercept = np.load(args.intercept_path)
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("csv_file", type=str, help="csv file")
+        parser.add_argument("slopes_path", type=str, help="csv file")
+        parser.add_argument("intercept_path", type=str, help="csv file")
+        args = parser.parse_args()
+        try:
+            tools.is_valid_path(args.csv_file)
+            slopes = np.load(args.slopes_path)
+            intercept = np.load(args.intercept_path)
+        except Exception as e:
+            sys.exit(e)
+        df = (
+            pd.read_csv(args.csv_file)
+            .drop(["Index"], axis=1)
+            .drop(["Hogwarts House"], axis=1)
+            .select_dtypes(include=["float64", "int64"])
+        )
+        df.fillna(df.mean(), inplace=True)
+        df = tools.normalize_df(df)
+        predict(df, slopes, intercept)
     except Exception as e:
-        sys.exit(e)
-    df = (
-        pd.read_csv(args.csv_file)
-        .drop(["Index"], axis=1)
-        .drop(["Hogwarts House"], axis=1)
-        .select_dtypes(include=["float64", "int64"])
-    )
-    df.fillna(df.mean(), inplace=True)
-    df = tools.normalize_df(df)
-    predict(df, slopes, intercept)
+        print(e)
+        exit(1)

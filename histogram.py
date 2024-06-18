@@ -124,21 +124,28 @@ def plot_individual_histogram(df):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Plot all histograms of a dataset")
-    parser.add_argument("csv_file", type=str, help="csv file to plot")
-    parser.add_argument("-g", "--group", action="store_true", help="group histograms")
-    parser.add_argument(
-        "-n", "--normalize", action="store_true", help="normalize column"
-    )
-    args = parser.parse_args()
     try:
-        tools.is_valid_path(args.csv_file)
+
+        parser = argparse.ArgumentParser(description="Plot all histograms of a dataset")
+        parser.add_argument("csv_file", type=str, help="csv file to plot")
+        parser.add_argument(
+            "-g", "--group", action="store_true", help="group histograms"
+        )
+        parser.add_argument(
+            "-n", "--normalize", action="store_true", help="normalize column"
+        )
+        args = parser.parse_args()
+        try:
+            tools.is_valid_path(args.csv_file)
+        except Exception as e:
+            sys.exit(e)
+        df = pd.read_csv(args.csv_file).drop(columns=["Index"])
+        if args.normalize:
+            df = tools.normalize_df(df)
+        if args.group:
+            plot_grouped_histogram(df)
+        else:
+            plot_individual_histogram(df)
     except Exception as e:
-        sys.exit(e)
-    df = pd.read_csv(args.csv_file).drop(columns=["Index"])
-    if args.normalize:
-        df = tools.normalize_df(df)
-    if args.group:
-        plot_grouped_histogram(df)
-    else:
-        plot_individual_histogram(df)
+        print(e)
+        exit(1)

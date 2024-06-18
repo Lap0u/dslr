@@ -59,19 +59,26 @@ def describe(df, metrics=False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Describe a dataset")
-    parser.add_argument("csv_file", type=str, help="csv file to describe")
-    parser.add_argument(
-        "-n", "--normalize", action="store_true", help="normalize column"
-    )
-    parser.add_argument("-m", "--metrics", action="store_true", help="add more metrics")
-    args = parser.parse_args()
     try:
-        tools.is_valid_path(args.csv_file)
+        parser = argparse.ArgumentParser(description="Describe a dataset")
+        parser.add_argument("csv_file", type=str, help="csv file to describe")
+        parser.add_argument(
+            "-n", "--normalize", action="store_true", help="normalize column"
+        )
+        parser.add_argument(
+            "-m", "--metrics", action="store_true", help="add more metrics"
+        )
+        args = parser.parse_args()
+        try:
+            tools.is_valid_path(args.csv_file)
+        except Exception as e:
+            print(e)
+            exit(1)
+        df = pd.read_csv(args.csv_file)
+        print(df.describe())  # real one
+        if args.normalize:
+            df = tools.normalize_df(df)
+        describe(df, args.metrics)
     except Exception as e:
-        sys.exit(e)
-    df = pd.read_csv(args.csv_file)
-    print(df.describe())  # real one
-    if args.normalize:
-        df = tools.normalize_df(df)
-    describe(df, args.metrics)
+        print(e)
+        exit(1)

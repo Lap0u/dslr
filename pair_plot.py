@@ -94,13 +94,20 @@ def pair_plot(df, heatmap=False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Plot the pair_plot of a dataset")
-    parser.add_argument("csv_file", type=str, help="csv file to plot")
-    parser.add_argument("-hm", "--heatmap", action="store_true", help="plot heatmap")
-    args = parser.parse_args()
     try:
-        tools.is_valid_path(args.csv_file)
+
+        parser = argparse.ArgumentParser(description="Plot the pair_plot of a dataset")
+        parser.add_argument("csv_file", type=str, help="csv file to plot")
+        parser.add_argument(
+            "-hm", "--heatmap", action="store_true", help="plot heatmap"
+        )
+        args = parser.parse_args()
+        try:
+            tools.is_valid_path(args.csv_file)
+        except Exception as e:
+            sys.exit(e)
+        df = pd.read_csv(args.csv_file).drop(columns=["Index"])
+        pair_plot(df, args.heatmap)
     except Exception as e:
-        sys.exit(e)
-    df = pd.read_csv(args.csv_file).drop(columns=["Index"])
-    pair_plot(df, args.heatmap)
+        print(e)
+        exit(1)

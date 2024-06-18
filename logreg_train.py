@@ -215,47 +215,54 @@ def logistic_regression(
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("csv_file", type=str, help="csv file")
-    parser.add_argument(
-        "-c", "--cost", action="store_true", help="Display and plot the cost function"
-    )
-    parser.add_argument(
-        "-a",
-        "--accuracy",
-        action="store_true",
-        help="Display the accuracy of the model",
-    )
-    parser.add_argument(
-        "-s",
-        "--stochastic",
-        action="store_true",
-        help="Use stochastic gradient descent",
-    )
-    parser.add_argument(
-        "-cm",
-        "--confusion-matrix",
-        action="store_true",
-        help="Display the confusion matrix",
-    )
-    parser.add_argument(
-        "-mb", "--mini-batch", type=int, help="Use batch gradient descent"
-    )
-    args = parser.parse_args()
     try:
-        tools.is_valid_path(args.csv_file)
+        parser = argparse.ArgumentParser()
+        parser.add_argument("csv_file", type=str, help="csv file")
+        parser.add_argument(
+            "-c",
+            "--cost",
+            action="store_true",
+            help="Display and plot the cost function",
+        )
+        parser.add_argument(
+            "-a",
+            "--accuracy",
+            action="store_true",
+            help="Display the accuracy of the model",
+        )
+        parser.add_argument(
+            "-s",
+            "--stochastic",
+            action="store_true",
+            help="Use stochastic gradient descent",
+        )
+        parser.add_argument(
+            "-cm",
+            "--confusion-matrix",
+            action="store_true",
+            help="Display the confusion matrix",
+        )
+        parser.add_argument(
+            "-mb", "--mini-batch", type=int, help="Use batch gradient descent"
+        )
+        args = parser.parse_args()
+        try:
+            tools.is_valid_path(args.csv_file)
+        except Exception as e:
+            print(e)
+            sys.exit(e)
+
+        x, y = tools.load_data(args.csv_file, "Hogwarts House")
+        x = tools.normalize_df(x)
+        logistic_regression(
+            x,
+            y,
+            args.cost,
+            args.accuracy,
+            args.stochastic,
+            args.mini_batch,
+            args.confusion_matrix,
+        )
     except Exception as e:
         print(e)
-        sys.exit(e)
-
-    x, y = tools.load_data(args.csv_file, "Hogwarts House")
-    x = tools.normalize_df(x)
-    logistic_regression(
-        x,
-        y,
-        args.cost,
-        args.accuracy,
-        args.stochastic,
-        args.mini_batch,
-        args.confusion_matrix,
-    )
+        exit(1)

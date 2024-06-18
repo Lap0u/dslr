@@ -47,17 +47,22 @@ def scatter_plot(df, feat1, feat2):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Plot the pair_plot of a dataset")
-    parser.add_argument("csv_file", type=str, help="csv file to plot")
-    parser.add_argument("feat1", type=str, help="first column to plot")
-    parser.add_argument("feat2", type=str, help="second column to plot")
-    args = parser.parse_args()
     try:
-        tools.is_valid_path(args.csv_file)
+
+        parser = argparse.ArgumentParser(description="Plot the pair_plot of a dataset")
+        parser.add_argument("csv_file", type=str, help="csv file to plot")
+        parser.add_argument("feat1", type=str, help="first column to plot")
+        parser.add_argument("feat2", type=str, help="second column to plot")
+        args = parser.parse_args()
+        try:
+            tools.is_valid_path(args.csv_file)
+        except Exception as e:
+            sys.exit(e)
+        df = pd.read_csv(args.csv_file).drop(columns=["Index"])
+        dropped = df.dropna(how="all", axis=1).select_dtypes([np.int64, np.float64])
+        if args.feat1 not in dropped.columns or args.feat2 not in dropped.columns:
+            sys.exit("Error: feature not valid")
+        scatter_plot(df, args.feat1, args.feat2)
     except Exception as e:
-        sys.exit(e)
-    df = pd.read_csv(args.csv_file).drop(columns=["Index"])
-    dropped = df.dropna(how="all", axis=1).select_dtypes([np.int64, np.float64])
-    if args.feat1 not in dropped.columns or args.feat2 not in dropped.columns:
-        sys.exit("Error: feature not valid")
-    scatter_plot(df, args.feat1, args.feat2)
+        print(e)
+        exit(1)
